@@ -2,11 +2,12 @@
 //  ViewController.swift
 //  Clima
 //
-//  Created by Angela Yu on 01/09/2019.
-//  Copyright © 2019 App Brewery. All rights reserved.
-//
+//  Created by Furkan Yıldırım on 22/05/2023.
+
 
 import UIKit
+
+
 
 class WeatherViewController: UIViewController {
     
@@ -15,8 +16,11 @@ class WeatherViewController: UIViewController {
     @IBOutlet weak var cityLabel: UILabel!
     @IBOutlet weak var searchTextField: UITextField!
     
+    var weatherManager = WeatherManager()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        weatherManager.delegate = self
         searchTextField.delegate = self
     }
     
@@ -26,6 +30,7 @@ class WeatherViewController: UIViewController {
         print(searchTextField.text)
     }
     
+        
 }
 
 extension WeatherViewController: UITextFieldDelegate {
@@ -45,27 +50,30 @@ extension WeatherViewController: UITextFieldDelegate {
     }
     
     func textFieldDidEndEditing(_ textField: UITextField) {
+        
+        if let city = searchTextField.text {
+            weatherManager.fetchWeather(cityName: city)
+        }
+        
         searchTextField.text = ""
     }
 }
 
+extension WeatherViewController: WeatherManagerDelegate {
+    func didFailWithError(error: Error) {
+        print(error)
+    }
+    
+    func didUpdateWeather(_ weatherManager: WeatherManager, weather: WeatherModel) {
+        DispatchQueue.main.async {
+            self.temperatureLabel.text = weather.temperatureString
+            self.cityLabel.text = weather.cityName
+            self.conditionImageView.image = UIImage(systemName: weather.conditionName)
 
-//switch conditionID {
-//        case 200...232:
-//            return "cloud.bolt"
-//        case 300...321:
-//            return "cloud.drizzle"
-//        case 500...531:
-//            return "cloud.rain"
-//        case 600...622:
-//            return "cloud.snow"
-//        case 701...781:
-//            return "cloud.fog"
-//        case 800:
-//            return "sun.max"
-//        case 801...804:
-//            return "cloud.bolt"
-//        default:
-//            return "cloud"
-//        }
+        }
+    }
+}
+
+
+
 
